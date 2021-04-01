@@ -16,13 +16,9 @@ const projects = [];
 
 
 app.get('/projects', (request, response) => {
- 
-    const { title, owner } = request.body;
-
-    const project = { id: uuid(), title, owner};
-
-    projects.push(project); //esse push joga a criação do projeto para o nosso array
-    return response.json(project); // sempre retornar o projeto recem criado e nunca exibir a lista completa
+    const { title, owner } = request.query;
+    
+    return response.json(projects); // sempre retornar o projeto recem criado e nunca exibir a lista completa
 });
 
 
@@ -37,25 +33,36 @@ app.post('/projects', (request, response) => {
 
 
 app.put('/projects/:id', (request, response) => {
-    const params = request.params;
-    console.log(params)
-    return response.json([
-        'projeto 10',
-        'projeto 20',
-        'projeto 3',
-        'projeto 4',
-        'projeto 5'
-    ]);
+    const {id} = request.params;
+    const {title, owner} = request.body;
+
+    const projectIndex = projects.findIndex(project => project.id === id);
+    if (projectIndex < 0) {
+        return response.status(400).json({error: 'Projeto não encontrado'});
+    }
+
+    const project = {
+        id,
+        title,
+        owner
+    }
+    projects[projectIndex] = project;
+    
+    return response.json(project);
 });
 
 app.delete('/projects/:id', (request, response) => {
-    return response.json([
-        'projeto 1',
-        'projeto 2',
-        'projeto 3',
-        'projeto 4',
-        'projeto 50'
-    ]);
+    const {id} = request.params;
+    const projectIndex = projects.findIndex(project => project.id === id);
+    if (projectIndex < 0) {
+        return response.status(400).json({error: 'Projeto não encontrado'});
+    }
+
+    projects.splice(projectIndex, 1);
+    //splice
+    return response.status(204).send();
 });
 
 app.listen(3000);
+
+console.log(projects);
